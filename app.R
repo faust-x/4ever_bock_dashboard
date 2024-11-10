@@ -1,5 +1,9 @@
 ################################################################################
-# 4 ever bock dashboard                                                        #
+# 4Ever-Bock-Dashboard                                                         #
+# The "4Ever-Bock-Dashboard" is an interactive R-Shiny-Dashboard that displays #
+# the current standings of the "4ever Bock" Doppelkopf community. Data is      #
+# updated in real-time via a connected Google Sheet, allowing all members to   #
+# stay up-to-date with the latest scores and statistics.                       #
 #                                                                              #                                                                             #                                                                              #
 # Author: Felix Aust                                                           #
 # E-mail: felix.aust@posteo.de                                                 #
@@ -25,15 +29,6 @@ pacman::p_load(shiny,
                fresh)
 
 # Google Authentication --------------------------------------------------------
-
-## Setup 
-# 1. Access Google Cloud Console
-# 2. Create a Project (optional)
-# 3. Navigate to "IAM & Admin" settings
-# 4. Create Service Account
-# 5. Create JSON Key
-# 6. Save the JSON Key in folder ".secrets"
-# 7. Grant Accces to Google Files 
 
 # Get json from Google Service Account 
 name_service_account_token <- list.files(path = "./.secrets",
@@ -65,20 +60,6 @@ tbl_all_data <-
                               0,
                               punkte*-0.1)) %>%
   mutate(season = year(datum))
-
-# path_to_font <-
-#   paste0(getwd(),
-#          "/www/fonts")
-# 
-# font_add(family = "Montserrat",
-#          regular = paste0(path_to_font,
-#                           "/Montserrat/static/Montserrat-Regular.ttf"),
-#          italic = paste0(path_to_font,
-#                          "/Montserrat/static/Montserrat-Italic.ttf"))
-# 
-# font_add(family = "Montserrat",
-#          regular = "Montserrat-Regular.ttf",
-#          italic = "Montserrat-Italic.ttf")
 
 # Bs4Dash-Theme ----------------------------------------------------------------
 source("./global/bs4dash_theme_4ever_bock.R", local = TRUE)
