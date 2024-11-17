@@ -9,74 +9,76 @@
 # E-mail: felix.aust@posteo.de                                                 #
 ################################################################################
 
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# Preparation ------------------------------------------------------------------
 
-# Load packages ----------------------------------------------------------------
-pacman::p_load(shiny,
-               bs4Dash,
+# Clean up workspace ----
+rm(list = ls(all.names = TRUE))
+
+# setwd is only required on local machine
+# setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
+# Load packages ----
+pacman::p_load(tidyverse,
+               janitor,
+               shiny,
                shinyWidgets,
-               tidyselect,
-               tidyverse,
+               bslib,
+               bsicons,
+               fontawesome,
                googledrive,
                googlesheets4,
-               lubridate,
-               janitor,
+               openxlsx,
                plotly,
-               showtext,
                DT,
-               reactable,
-               reactablefmtr,
-               fresh)
+               reactablefmtr)
 
-# Google Authentication --------------------------------------------------------
+
+# Define input data ----
+
+# URL's from Google Drive and Google Sheet 
+input_data <-
+  list(google_url_folder_images = "https://drive.google.com/drive/folders/1a7Rn8z1eSw-xZPczU5vioYJh0eftK5dj?usp=sharing",
+       google_url_sheet_data = "https://docs.google.com/spreadsheets/d/1rZDkXF7CPSkXcMSGHUp-KRwgnoBsgN-xqQqRO-GyGs8/edit?usp=sharing")
+
+# Load config files ----
+
+# Custom values  
+source(file="./global/custom_values.R", local = TRUE)
+
+# Custom functions 
+source(file="./global/custom_functions.R", local = TRUE)
+
+# Google authentication ----
 
 # Get json from Google Service Account 
-name_service_account_token <- list.files(path = "./.secrets",
+value_name_service_account_token <- list.files(path = "./.secrets",
                                          pattern = "\\.json$")[1]
 
-## Authentication 
+# Authentication 
 drive_auth(path = paste0("./.secrets/",
-                         name_service_account_token))
+                         value_name_service_account_token))
 gs4_auth(token = drive_token())
 
+# Load data ---- 
+script_load_data <- parse(file = "./global/load_data.R")
 
-# Load Data -------------------------------------------------------------------- 
-
-## define urls 
-image_folder_url <- "https://drive.google.com/drive/folders/1a7Rn8z1eSw-xZPczU5vioYJh0eftK5dj?usp=sharing"
-sheet_url <- "https://docs.google.com/spreadsheets/d/1rZDkXF7CPSkXcMSGHUp-KRwgnoBsgN-xqQqRO-GyGs8/edit?usp=sharing"
-
-## load data 
-tbl_all_data <-
-  read_sheet(sheet_url) %>%
-  clean_names() %>%
-  filter(!is.na(spieler_in)) %>%
-  mutate(datum = ymd(datum)) %>% 
-  mutate(spiel = if_else(is.na(spiel),
-                         0,
-                         spiel)) %>% 
-  filter(!is.na(spielrunden_am_abend)) %>% 
-  mutate(einzahlung = if_else(punkte>=0,
-                              0,
-                              punkte*-0.1)) %>%
-  mutate(season = year(datum))
-
-# Bs4Dash-Theme ----------------------------------------------------------------
-source("./global/bs4dash_theme_4ever_bock.R", local = TRUE)
-
-# UI
-
-## Page Overview
-source("./ui/ui_page_overview.R", local = TRUE)
-source("./ui/ui_page_spieltage.R", local = TRUE)
-source("./ui/ui_page_medallien.R", local = TRUE)
-
+for (i in seq_along(script_load_data)) {
+  tryCatch(eval(script_load_data[[i]]), 
+           error = function(e) message("Oops! Error in chunk: ",
+                                       script_load_data[[i]],
+                                       "; error message: ",
+                                       as.character(e)))
+}
 
 # APP --------------------------------------------------------------------------
 
-## UI ------------------------------------------------------------------
+# Load ui ----
+# source("./ui/ui_page_overview.R", local = TRUE)
+# source("./ui/ui_page_spieltage.R", local = TRUE)
+# source("./ui/ui_page_medallien.R", local = TRUE)
 
-ui <- dashboardPage(freshTheme = theme,
+# Create ui object 
+ui <- dashboardPage(#freshTheme = theme,
                     dark = NULL,
                     header = dashboardHeader(title = dashboardBrand(title = "4ever Bock",
                                                                     href = "https://github.com/faust-x",
@@ -113,16 +115,15 @@ ui <- dashboardPage(freshTheme = theme,
                                  )))
 
 
-# server 
+# Load server ----
 server <- function(input, output) {
   
-  source("./server/server_data.R", local = TRUE)
-  source("./server/server_page_overview.R", local = TRUE)
-  source("./server/server_page_spieltage.R", local = TRUE)
-  source("./server/server_page_medallien.R", local = TRUE)
-  
-
+  # source("./server/server_data.R", local = TRUE)
+  # source("./server/server_page_overview.R", local = TRUE)
+  # source("./server/server_page_spieltage.R", local = TRUE)
+  # source("./server/server_page_medallien.R", local = TRUE)
+  # 
 }
 
-# start app
+# Start APP ----
 shinyApp(ui, server)
