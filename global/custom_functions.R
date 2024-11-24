@@ -1,21 +1,23 @@
 # DTtable ----------------------------------------------------------------------
 
 # DTtable buttons ----
-DT_button_download_current_page <-list(extend = "excel",
-                                       text = "Download Current Page",
-                                       filename = "page",
-                                       exportOptions = list(modifier = list(page = "current")))
-
-
-DT_button_download_full_results <- list(extend = "excel",
-                                        text = "Download Full Results",
-                                        filename = "data",
-                                        exportOptions = list(modifier = list(page = "all")))
 
 # DTtable standard
 datatable_std <- function(TABLE,
                           fillContainer =TRUE,
                           filename="data") {
+  
+  DT_button_download_current_page <-list(extend = "excel",
+                                         text = "Download Current Page",
+                                         filename = "page",
+                                         exportOptions = list(modifier = list(page = "current")))
+  
+  
+  DT_button_download_full_results <- list(extend = "excel",
+                                          text = "Download Full Results",
+                                          filename = "data",
+                                          exportOptions = list(modifier = list(page = "all")))
+  
   TABLE %>% 
     datatable(.,
               filter = 'top',
@@ -23,7 +25,6 @@ datatable_std <- function(TABLE,
               escape = FALSE,
               rownames= FALSE,
               fillContainer = fillContainer,
-              #style = "default",
               options = list(dom = 'Bfrtipl',
                              buttons = list('copy',
                                             list(extend = "excel",
@@ -40,6 +41,18 @@ datatable_std <- function(TABLE,
                              lengthMenu = TRUE,
                              searchHighlight = TRUE))
   
+}
+
+
+# Reacttable (+fmtr) -----------------------------------------------------------
+
+reactable_std <- function(TABLE = cars) {
+  reactable(data = TABLE,
+            defaultPageSize = 25,
+            filterable = TRUE,
+            searchable = TRUE,
+            compact = TRUE) %>% 
+    google_font("Montserrat")
 }
 
 # Plotly -----------------------------------------------------------------------

@@ -11,42 +11,25 @@ tags$head(
 # bslib themes ----------------------------------------------------------------
 
 # bslib theme mementor default ----
-bslib_theme_mementor_default <-
+bslib_theme_default <-
   bs_theme(
     version = 5,
+    bootswatch = "minty",
+    #preset = "shiny",
     base_font = font_google("Montserrat"),
     code_font = font_google("Montserrat"),
     font_scale = 0.9,
-    "navbar-light-bg" = "#2d8c84 !important",
-    "navbar-light-active-color" = "white !important",
-    "navbar-light-link-color" = "#494848 !important",
-    "navbar-light-brand-color" = "white !important",
-    "navbar-light-brand-hover-color" = "white !important",
-    "nav-link-active-color" = "red !important",
-    "nav-link-color" = "#494848 !important",
+    # "navbar-light-bg" = "#2d8c84 !important",
+    # "navbar-light-active-color" = "white !important",
+    # "navbar-light-link-color" = "#494848 !important",
+    # "navbar-light-brand-color" = "white !important",
+    # "navbar-light-brand-hover-color" = "white !important",
+    # "nav-link-active-color" = "red !important",
+    # "nav-link-color" = "#494848 !important",
     bg = "#FFFFFF",
-    fg = "#494848",
-    preset = "shiny",
-    primary = "#2d8c84",
-    secondary = "#755880",
-    success = "#6a9f58",
-    info = "#85b6b2",
-    warning = "#e7ca60",
-    danger = "#d1615d",
-    heading_font = font_google("Baloo 2"))
-
-# mementor bslib theme bootstrap 5 ----
-mementor_theme_bslib <-
-  bs_theme(
-    version = 5,
-    #bootswatch = "minty",
-    base_font = font_google("Montserrat"),
-    code_font = font_google("Montserrat"),
-    font_scale = 1,
-    bg = "#fff",
-    fg = "#2d8c84",
-    primary = "#2d8c84",
-    secondary = "#755880",
+    fg = "#d0b169",
+    primary = "#d0b169",
+    secondary = "#272c30",
     success = "#6a9f58",
     info = "#85b6b2",
     warning = "#e7ca60",
@@ -55,7 +38,7 @@ mementor_theme_bslib <-
 
 # bs4dash layout theme ---------------------------------------------------------
 # 
-# # create the theme with fresh
+# create the theme with fresh
 # theme <- create_theme(
 #   bs4dash_vars(
 #     navbar_light_color = "#bec5cb",
@@ -64,18 +47,18 @@ mementor_theme_bslib <-
 #   ),
 #   bs4dash_yiq(
 #     contrasted_threshold = 10,
-#     text_dark = "#FFF", 
+#     text_dark = "#FFF",
 #     text_light = "#272c30"
 #   ),
 #   bs4dash_layout(
 #     main_bg = "#FFF"
 #   ),
 #   bs4dash_sidebar_light(
-#     bg = "#272c30", 
+#     bg = "#272c30",
 #     color = "#bec5cb",
 #     hover_color = "#FFF",
-#     submenu_bg = "#272c30", 
-#     submenu_color = "#FFF", 
+#     submenu_bg = "#272c30",
+#     submenu_color = "#FFF",
 #     submenu_hover_color = "#FFF"
 #   ),
 #   bs4dash_status(

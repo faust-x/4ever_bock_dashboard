@@ -1,187 +1,220 @@
-# selected_season <- c(2021,2022)
-# selected_season <- c(2023)
-# 
-# tbl_all_data_selected_season <-
-# tbl_all_data %>%
-#   filter(season %in% selected_season)
+# Data Preparation ----
 
+tbl_raw_data_selected <- reactive({
+  tbl_raw_data_clean %>% 
+    filter(season %in% input$season)
+})
 
-tbl_spielerin_spieltag_summary <-
-  tbl_all_data %>%
-  filter(datum >="2023-01-01") %>% 
-  group_by(datum,spieler_in) %>% 
-  summarise(punkte = sum(punkte,
-                         na.rm = TRUE)) %>% 
-  group_by(spieler_in) %>%
-  arrange(spieler_in,datum) %>%
-  mutate(punkte_total = cumsum(punkte)) %>% 
-  ungroup() %>% 
-  complete(spieler_in,datum) %>% 
-  group_by(spieler_in) %>%
-  fill(punkte_total,
-       .direction = "down") %>% 
-  filter(!is.na(punkte_total)) %>% 
-  group_by(datum) %>%
-  arrange(datum,
-          desc(punkte_total),
-          desc(punkte)) %>%
-  mutate(position = row_number()) %>% 
-  ungroup()
+tbl_matches <- reactive({
+  tbl_raw_data_selected() %>% 
+    group_by(date,player,match) %>% 
+    summarise(points = sum(points),
+              payment = sum(payment),
+              games_n = max(games_n),
+              games_played = sum(games_played),
+              games_soli = sum(games_soli),
+              games_bock = sum(games_bock)) %>% 
+    arrange(date,
+            match,
+            desc(points),
+            player) %>% 
+    group_by(date,match) %>% 
+    mutate(position= row_number()) %>% 
+    ungroup()
+})
 
-tbl_spielerin_spieltag_summary <-
-  tbl_spielerin_spieltag_summary %>% 
-  left_join(.,
-            tbl_spielerin_spieltag_summary %>% 
-              distinct(position) %>% 
-              arrange(desc(position)) %>% 
-              mutate(position_reverse = row_number()),
-            by="position")
-
-
-vec_spielerinnen_available<-
-  tbl_spielerin_spieltag_summary %>% 
-  distinct(spieler_in) %>% 
-  pull()
-
-
-
-
-
-fig <- plot_ly(data = tbl_spielerin_spieltag_summary %>% 
-                 filter(spieler_in %in% vec_spielerinnen_available[1:4]),
-               x = ~datum,
-               y = ~position_reverse, 
-               color = ~spieler_in,
-               type = 'scatter', 
-               mode = 'lines') %>% 
-  layout(#plot_bgcolor='#e5ecf6',
-    yaxis = list(#zerolinewidth = 2,
-      rangemode="tozero"))
-
-
-fig
-
-
-
-tbl_all_data_selected_season <- reactive({
-  tbl_all_data %>%
-  filter(season %in% input$input_season)
+tbl_matches_summary <- reactive({
+  tbl_matches() %>% 
+    group_by(date,match) %>% 
+    summarise(games_n = max(games_n),
+              games_bock = max(games_bock),
+              payment = sum(payment),
+              games_soli = sum(games_soli),
+              winner = player[position==1],
+              player_n = n_distinct(player)) %>% 
+    ungroup()
 })
 
 
-# Zusammenfassung Spielerin
-tbl_spielerin_summary_temp <- reactive({
-tbl_all_data_selected_season() %>%
-  group_by(spieler_in) %>% 
-  summarise(spieltag_erster = min(datum),
-            spieltage = n_distinct(datum),
-            spiele = sum(spielrunden_am_abend)-sum(spielrunden_ausgesetzt),
-            bockrunden = sum(bockrunden_am_abend),
-            soli = sum(soli_gespielt_anzahl),
-            punkte = sum(punkte),
-            einzahlung = sum(einzahlung)) %>% 
-  mutate(punkte_pro_spiel = round(punkte/spiele,2)) %>% 
-  ungroup()
+tbl_matchdays_raw_data <- reactive({
+  tbl_matches() %>% 
+    group_by(date,player) %>% 
+    summarise(points = sum(points),
+              games_played = sum(games_played),
+              games_soli = sum(games_soli),
+              games_bock = sum(games_bock)
+    ) %>% 
+    mutate(payment_matchday = if_else(points >= 0,
+                                      0,
+                                      points) * -10/100) %>% 
+    arrange(date,
+            desc(points),
+            player) %>% 
+    group_by(date) %>% 
+    mutate(position= row_number()) %>% 
+    ungroup()
 })
 
-# Zusammenfassung Spieltag
-tbl_spieltag_summary <- reactive({
-tbl_all_data_selected_season() %>% 
-  group_by(datum,spiel) %>% 
-  summarise(spiele = max(spielrunden_am_abend),
-            bockrunden_am_abend = max(bockrunden_am_abend),
-            spieler_in = n_distinct(spieler_in),
-            einzahlung = sum(einzahlung)) %>% 
-  full_join(.,
-            tbl_all_data_selected_season() %>% 
-              group_by(datum,spiel) %>% 
-              filter(punkte == max(punkte)) %>% 
-              summarise(siegerin_punkte = unique(punkte), 
-                        siegerin_name = toString(unique(spieler_in))),
-            by=c("datum","spiel")) %>% 
-  full_join(.,
-            tbl_all_data_selected_season() %>% 
-              group_by(datum,spiel) %>% 
-              filter(punkte <0) %>% 
-              summarise(minuspunkte_sum = sum(punkte)),
-            by=c("datum","spiel")) %>% 
-  full_join(.,
-            tbl_all_data_selected_season() %>% 
-              group_by(datum,spiel) %>% 
-              filter(punkte == min(punkte)) %>% 
-              summarise(loserin_punkte = unique(punkte), 
-                        loserin_name = toString(unique(spieler_in))),
-            by=c("datum","spiel")) %>% 
-  ungroup() })
 
-
-# add spieltagssiege to tbl_spielerin_summary
-tbl_spielerin_summary <- reactive({
-tbl_spielerin_summary_temp() %>% 
-  left_join(.,
-            tbl_spieltag_summary() %>% 
-              group_by(spieler_in=siegerin_name) %>% 
-              summarise(spieltagssiege = n()),
-            by="spieler_in") %>%
-  mutate_if(is.numeric , replace_na, replace = 0)
+tbl_player_summary <- reactive({
+  tbl_matches() %>%  
+    group_by(player) %>%
+    summarise(points = sum(points),
+              payment = sum(payment),
+              games_played = sum(games_played),
+              games_soli = sum(games_soli),
+              games_bock = sum(games_bock),
+              matchdays = n_distinct(date),
+              date_first = min(date),
+              date_last = max(date)) %>%
+    mutate(points_per_game = points/games_played) %>% 
+    mutate(diff_days_min_max = as.numeric(date_last-date_first)+1) %>% 
+    left_join(tbl_matches() %>%
+                group_by(player) %>% 
+                summarise(victories_matchday = sum(position == 1)),
+              by = join_by(player)) %>% 
+    left_join(tbl_matches() %>%
+                group_by(player) %>% 
+                summarise(matches = n(),
+                          victories_match = sum(position == 1)),
+              by = join_by(player)) %>%
+    mutate(across(where(is.numeric), ~ replace_na(., 0))) %>% 
+    mutate(across(where(is.numeric), ~ round(., 2))) %>% 
+    ungroup()
 })
-  
 
 
-# tbl kennzahlen 
-
-tbl_kennzahlen <- reactive({
-bind_cols(
-  tbl_spieltag_summary() %>% 
+tbl_matchday_summary_by_player <- reactive({
+  tbl_matches() %>% 
+    group_by(date,
+             player) %>% 
+    summarise(points = sum(points)) %>% 
+    group_by(player) %>%
+    arrange(player,date) %>%
+    mutate(points_total = cumsum(points)) %>% 
     ungroup() %>% 
-    summarise(spieltag_n = n(),
-              spieltage_letzte = max(datum),
-              spiele_n = sum(spiele),
-              bockrunden_n = sum(bockrunden_am_abend),
-              minuspunkte_sum = sum(minuspunkte_sum),
-              einzahlung_total = sum(einzahlung)),
-  
-  tbl_spieltag_summary() %>% 
-    group_by(siegerin_name) %>% 
-    tally() %>% 
-    filter(n == max(n)) %>% 
+    complete(date,
+             player) %>% 
+    group_by(player) %>%
+    fill(points_total,
+         .direction = "down") %>% 
+    filter(!is.na(points_total)) %>% 
+    group_by(date) %>%
+    arrange(date,
+            desc(points_total),
+            desc(points)) %>%
+    mutate(position = row_number()) %>% 
     ungroup() %>% 
-    summarise(spielerin_siege_max_n = unique(n),
-              spielerin_siege_max_name = toString(unique(siegerin_name))),
-  
-  tbl_spielerin_summary() %>% 
-    summarise(spielerin_n = n()),
-  
-  
-  tbl_spielerin_summary() %>%
-    filter(spiele == max(spiele)) %>%
-    summarise(spiele_max_n = unique(spiele),
-              spiele_max_name = toString(spieler_in)),
-  
-  tbl_spielerin_summary() %>%
-    filter(punkte == max(punkte)) %>%
-    summarise(punkte_max_n = unique(punkte),
-              punkte_max_name = toString(spieler_in)),
-  
-  tbl_spielerin_summary() %>%
-    filter(punkte_pro_spiel == max(punkte_pro_spiel)) %>%
-    summarise(punkte_pro_spiel_max_n = unique(punkte_pro_spiel),
-              punkte_pro_spiel_max_name = toString(spieler_in)),
-  
-  tbl_spielerin_summary() %>%
-    filter(soli == max(soli)) %>%
-    summarise(soli_max_n = unique(soli),
-              soli_max_name = toString(spieler_in)),
-  
-  tbl_spielerin_summary() %>%
-    filter(bockrunden == max(bockrunden)) %>%
-    summarise(bockrunden_max_n = unique(bockrunden),
-              bockrunden_max_name = toString(spieler_in)),
-  
-  tbl_spielerin_summary() %>%
-    filter(spieltag_erster == max(spieltag_erster)) %>%
-    summarise(spieltag_erster_max_n = unique(spieltag_erster),
-              spieltag_erster_max_name = toString(spieler_in))
-  
-) 
+    mutate(position_reverse = max(position)+ 1 -position)
 })
+
+
+
+# tbl_raw_data_selected %>% glimpse()
+# tbl_matchdays_raw_data %>% glimpse()
+# tbl_matches_raw_data %>% glimpse()
+# tbl_player_summary %>% glimpse()
+# tbl_pictures_in_folder %>% glimpse()
+
+# value box data
+
+tbl_key_values <- reactive({
+  tbl_matches_summary() %>% 
+    summarise(macthes_n = n(),
+              matchdays = n_distinct(date),
+              games_n = sum(games_n),
+              games_bock = sum(games_bock),
+              games_soli = sum(games_soli),
+              payment = sum(payment),
+              biggest_match = max(player_n),
+              first_match_date = min(date)) %>% 
+    bind_cols(.,
+              tbl_player_summary() %>%
+                summarise(player_n = n_distinct(player),
+                          most_points_player = toString(player[points== max(points)]),
+                          most_points_value = max(points),
+                          highest_payment_player = toString(player[payment==max(payment)]),
+                          highest_payment_value = max(payment),
+                          highest_points_per_game_player = toString(player[points_per_game== max(points_per_game)]),
+                          highest_points_per_game_value = max(points_per_game),
+                          most_soli_player = toString(player[games_soli== max(games_soli)]),
+                          most_soli_value = max(games_soli),
+                          most_games_played_player = toString(player[games_played== max(games_played)]),
+                          most_games_played_value = max(games_played),
+                          most_victories_match_player = toString(player[victories_match== max(victories_match)]),
+                          most_victories_match_value = max(victories_match),
+                          most_victories_matchday_player = toString(player[victories_matchday== max(victories_matchday)]),
+                          most_victories_matchday_value = max(victories_matchday),
+                          newest_player_name = toString(player[date_first == max(date_first)]),
+                          newest_player_date = max(date_first),
+                          last_match_player = toString(player[date_last == max(date_last)]),
+                          last_match_date = max(date_last)))
+})
+
+
+
+# Reacttable 
+
+# matches all
+output$reacttable_overview_match_all <- renderReactable({
+  
+  tbl_raw_data_clean %>% 
+    reactable_std()
+  
+})
+
+# match selection
+output$reacttable_overview_match_selection <- renderReactable({
+  
+  tbl_matches() %>% 
+    reactable_std()
+  
+})
+
+# matchday selection
+output$reacttable_overview_matchday_selection <- renderReactable({
+  
+  tbl_matchdays_raw_data() %>% 
+    reactable_std()
+  
+})
+
+# match summary
+output$reacttable_overview_match_summary <- renderReactable({
+  
+  tbl_matches_summary() %>% 
+    reactable_std()
+  
+})
+
+# player summary
+output$reacttable_overview_player_summary <- renderReactable({
+  
+  tbl_player_summary() %>% 
+    reactable_std()
+  
+})
+
+# tbl_key_values
+output$reacttable_overview_key_values <- renderReactable({
+  
+  tbl_key_values() %>% 
+    pivot_longer(data = .,
+                 cols = everything(),
+                 values_transform = as.character) %>% 
+    reactable_std()
+  
+})
+
+# tbl_key_values
+output$reacttable_pictures_all <- renderReactable({
+  
+  tbl_pictures_in_folder %>%  
+    reactable_std()
+  
+})
+
+
+
+
+

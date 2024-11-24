@@ -1,315 +1,506 @@
 # Available Data 
 
-# tbl_all_data_selected_season %>% view()
-# tbl_spieltag_summary %>% view()
-# tbl_spielerin_summary() %>% view()
-# tbl_kennzahlen %>%  t()
-
-# Value Boxes ------------------------------------------------------------------
-#subtitle = p(tbl_kennzahlen$spieltag_n, style = "color:white; font-size:20px"),
-
-output$infobox_overview_spieltage <- renderInfoBox({
-  infoBox(title= "Spieltage",
-          value = tbl_kennzahlen()$spieltag_n,
-          icon = icon(name ="calendar-alt",
-                         lib = "font-awesome"), 
-          color = "primary",
-          fill = TRUE,
-          elevation = 1,
-          iconElevation = 3,
-          gradient = TRUE
-  )
-})
-
-
-output$infobox_overview_einzahlung <- renderInfoBox({
-  infoBox(title= "Einzahlung (Soll)",
-          value = tbl_kennzahlen()$einzahlung_total %>% paste0(.,"€"),
-          icon = icon(name ="euro",
-                      lib = "glyphicon"), 
-          color = "primary",
-          fill = TRUE,
-          elevation = 1,
-          iconElevation = 3,
-          gradient = TRUE
-  )
-})
-
-output$infobox_overview_spieltag_letzter <- renderInfoBox({
-  infoBox(title= "Letzter Spieltag",
-          value = tbl_kennzahlen()$spieltage_letzte %>% format(.,"%d.%m.%y"),
-          icon = icon(name ="calendar-day",
-                      lib = "font-awesome"), 
-          color = "primary",
-          fill = TRUE,
-          elevation = 1,
-          iconElevation = 3,
-          gradient = TRUE
-  )
-})
-
-output$infobox_overview_meisten_punkte <- renderInfoBox({
-  infoBox(title= "Meisten Punkte " %>% paste0(.,
-                                            "(",
-                                            tbl_kennzahlen()$punkte_max_n,
-                                            ")"),
-          value = tbl_kennzahlen()$punkte_max_name,
-          icon = icon(name ="medal",
-                      lib = "font-awesome"), 
-          color = "primary",
-          fill = TRUE,
-          elevation = 1,
-          iconElevation = 3,
-          gradient = TRUE
-  )
-})
-
-
-
 
 # Charts -----------------------------------------------------------------------
 
-# Punkte ----
-
-output$chart_punkte <- renderPlotly({ 
-plot_ly() %>% 
-  add_trace(data=tbl_spielerin_summary(),
-            x = ~spieler_in,
-            y = ~punkte,
-            name = "Punkte (gesamt)",
-            type = 'bar',
-            marker = list(color = if_else(tbl_spielerin_summary()$punkte>= 0,
-                                          "#6a9f58",
-                                          "#d1615d")),
-            text=~punkte,
-            textfont=list(color="white"),
-            textposition = 'auto',
-            hovertemplate = paste0("Spieler:in<b>: ",tbl_spielerin_summary()$spieler_in,"</b><br><br>",
-                                   "-Spieltage: ",tbl_spielerin_summary()$spieltage,"<br>",
-                                   "-Spiele: ",tbl_spielerin_summary()$spiele,"<br>",
-                                   "-Spieltagssiege: ",tbl_spielerin_summary()$spieltagssiege,"<br>",
-                                   "-Punkte: <b>",tbl_spielerin_summary()$punkte,"</b><br>",
-                                   "-Punkte pro Spiel: ",tbl_spielerin_summary()$punkte_pro_spiel,"<br>",
-                                   "-Soli: ",tbl_spielerin_summary()$soli,"<br>",
-                                   "<extra></extra>")) %>% 
-  layout(title = list(text = "<b>Punkte nach Spieler:in</b>", 
-                      font= list(size = 24,
-                                 family = "calibri"),
-                      y = 0.98),
-         font = list(family = "calibri",size = 18),
-         separators = ',',
-         yaxis = list(title = "Punkte",
-                      ticksuffix = ""),
-         xaxis = list(title = list(text = "", standoff = 3),
-                      categoryorder = "total descending",
-                      zeroline = FALSE),
-         legend = list(orientation = 'h'))
+#Points
+output$chart_overview_points <- renderPlotly({
+  
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data= tbl_player_summary(),
+              x = ~player,
+              y = ~points,
+              type = 'bar',
+              marker = list(color = if_else(tbl_player_summary()$points>= 0,
+                                            list_colors_tableau_10$green,
+                                            list_colors_tableau_10$red)),
+              text=~points,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                     "-Matchdays: ",matchdays,"<br>",
+                                     "  -Victories: ",victories_matchday,"<br>",
+                                     "-Matches: ",matches,"<br>",
+                                     "  -Victories: ",victories_match,"<br>",
+                                     "-Games: ",games_played,"<br>",
+                                     "-Points: <b>",points,"</b><br>",
+                                     "-Points per game: ",points_per_game,"<br>",
+                                     "-Payment: ",payment," €<br>",
+                                     "-Soli: ",games_soli,"<br>",
+                                     "<extra></extra>")
+              ) %>%
+    layout(title = list(text = "<b>Points</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Points"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
 })
 
-
-
-
-# Durchschnittliche Punkte pro Spiel ----
-
-output$chart_punkte_pro_spiel <- renderPlotly({ 
-plot_ly() %>% 
-  add_trace(data=tbl_spielerin_summary(),
-            x = ~spieler_in,
-            y = ~punkte_pro_spiel,
-            name = "Punkte (gesamt)",
-            type = 'bar',
-            marker = list(color = if_else(tbl_spielerin_summary()$punkte_pro_spiel>= 0,
-                                          "#6a9f58",
-                                          "#d1615d")),
-            text=~punkte_pro_spiel,
-            textfont=list(color="white"),
-            textposition = 'auto',
-            hovertemplate = paste0("Spieler:in<b>: ",tbl_spielerin_summary()$spieler_in,"</b><br><br>",
-                                   "-Spieltage: ",tbl_spielerin_summary()$spieltage,"<br>",
-                                   "-Spiele: ",tbl_spielerin_summary()$spiele,"<br>",
-                                   "-Spieltagssiege: ",tbl_spielerin_summary()$spieltagssiege,"<br>",
-                                   "-Punkte: ",tbl_spielerin_summary()$punkte,"<br>",
-                                   "-Punkte pro Spiel:<b> ",tbl_spielerin_summary()$punkte_pro_spiel,"</b><br>",
-                                   "-Soli: ",tbl_spielerin_summary()$soli,"<br>",
-                                   "<extra></extra>")) %>% 
-  layout(title = list(text = "<b>Durchschnittliche Punkte pro Spiel nach Spieler:in</b>", 
-                      font= list(size = 24,
-                                 family = "calibri"),
-                      y = 0.98),
-         font = list(family = "calibri",size = 18),
-         separators = ',',
-         yaxis = list(title = "Punkte",
-                      ticksuffix = ""),
-         xaxis = list(title = list(text = "", standoff = 3),
-                      categoryorder = "total descending",
-                      zeroline = FALSE),
-         legend = list(orientation = 'h'))
+#Points per Game
+output$chart_overview_points_per_game <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data=tbl_player_summary(),
+              x = ~player,
+              y = ~points_per_game,
+              type = 'bar',
+              marker = list(color = if_else(tbl_player_summary()$points_per_game>= 0,
+                                            list_colors_tableau_10$green,
+                                            list_colors_tableau_10$red)),
+              text=~points_per_game,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Matchdays: ",matchdays,"<br>",
+                                      "  -Victories: ",victories_matchday,"<br>",
+                                      "-Matches: ",matches,"<br>",
+                                      "  -Victories: ",victories_match,"<br>",
+                                      "-Games: ",games_played,"<br>",
+                                      "-Points: <b>",points,"</b><br>",
+                                      "-Points per game: ",points_per_game,"<br>",
+                                      "-Payment: ",payment," €<br>",
+                                      "-Soli: ",games_soli,"<br>",
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Points per game</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Points per game"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
 })
 
-
-
-# Anzahl der Spiele ----
-
-output$chart_anzahl_spiele <- renderPlotly({ 
-plot_ly() %>% 
-  add_trace(data= tbl_spielerin_summary(),
-            x = ~spieler_in,
-            y = ~spiele,
-            name = "Anzahl der Spiele",
-            type = 'bar',
-            marker = list(color = "#85b6b2"),
-            text=~spiele,
-            textfont=list(color="white"),
-            textposition = 'auto',
-            hovertemplate = paste0("Spieler:in<b>: ",tbl_spielerin_summary()$spieler_in,"</b><br><br>",
-                                   "-Spieltage: ",tbl_spielerin_summary()$spieltage,"<br>",
-                                   "-Spiele: <b> ",tbl_spielerin_summary()$spiele,"</b><br>",
-                                   "-Spieltagssiege: ",tbl_spielerin_summary()$spieltagssiege,"<br>",
-                                   "-Punkte: ",tbl_spielerin_summary()$punkte,"<br>",
-                                   "-Punkte pro Spiel: ",tbl_spielerin_summary()$punkte_pro_spiel,"<br>",
-                                   "-Soli: ",tbl_spielerin_summary()$soli,"<br>",
-                                   "<extra></extra>")) %>% 
-  layout(title = list(text = "<b>Spiele nach Spieler:in</b>", 
-                      font= list(size = 24,
-                                 family = "calibri"),
-                      y = 0.98),
-         font = list(family = "calibri",size = 18),
-         separators = ',',
-         yaxis = list(title = "Spiele",
-                      ticksuffix = ""),
-         xaxis = list(title = list(text = "", standoff = 3),
-                      categoryorder = "total descending",
-                      zeroline = FALSE),
-         legend = list(orientation = 'h'))
+# Payment
+output$chart_overview_payment <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data=tbl_player_summary() %>%
+                filter(payment > 0),
+              x = ~player,
+              y = ~payment,
+              type = 'bar',
+              marker = list(color = list_colors_tableau_10$teal),
+              text=~payment,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Matchdays: ",matchdays,"<br>",
+                                      "  -Victories: ",victories_matchday,"<br>",
+                                      "-Matches: ",matches,"<br>",
+                                      "  -Victories: ",victories_match,"<br>",
+                                      "-Games: ",games_played,"<br>",
+                                      "-Points: <b>",points,"</b><br>",
+                                      "-Points per game: ",points_per_game,"<br>",
+                                      "-Payment: ",payment," €<br>",
+                                      "-Soli: ",games_soli,"<br>",
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Payment</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Payment"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
 })
 
-
-# Anzahl der Spieltagssiege ---- 
-
-output$chart_spieltagssiege <- renderPlotly({ 
-plot_ly() %>% 
-  add_trace(data= tbl_spielerin_summary(),
-            x = ~spieler_in,
-            y = ~spieltagssiege,
-            name = "Anzahl der Spieltagssiege",
-            type = 'bar',
-            marker = list(color = "#85b6b2"),
-            text=~spieltagssiege,
-            textfont=list(color="white"),
-            textposition = 'auto',
-            transforms = list(list(type = 'filter',
-                                   target = ~spieltagssiege,
-                                   operation = '>',
-                                   value = 0)),
-            hovertemplate = paste0("Spieler:in<b>: ",tbl_spielerin_summary()$spieler_in,"</b><br><br>",
-                                   "-Spieltage: ",tbl_spielerin_summary()$spieltage,"<br>",
-                                   "-Spiele: <b> ",tbl_spielerin_summary()$spiele,"</b><br>",
-                                   "-Spieltagssiege: ",tbl_spielerin_summary()$spieltagssiege,"<br>",
-                                   "-Punkte: ",tbl_spielerin_summary()$punkte,"<br>",
-                                   "-Punkte pro Spiel: ",tbl_spielerin_summary()$punkte_pro_spiel,"<br>",
-                                   "-Soli: ",tbl_spielerin_summary()$soli,"<br>",
-                                   "<extra></extra>")) %>% 
-  layout(title = list(text = "<b>Spieltagssiege nach Spieler:in</b>", 
-                      font= list(size = 24,
-                                 family = "calibri"),
-                      y = 0.98),
-         font = list(family = "calibri",size = 18),
-         separators = ',',
-         yaxis = list(title = "Anzahl der Siege",
-                      ticksuffix = ""),
-         xaxis = list(title = list(text = "", standoff = 3),
-                      categoryorder = "total descending",
-                      zeroline = FALSE),
-         legend = list(orientation = 'h')) 
+#Soli
+output$chart_overview_soli <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data=tbl_player_summary() %>%
+                filter(games_soli> 0),
+              x = ~player,
+              y = ~games_soli,
+              type = 'bar',
+              marker = list(color = list_colors_tableau_10$teal),
+              text=~games_soli,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Matchdays: ",matchdays,"<br>",
+                                      "  -Victories: ",victories_matchday,"<br>",
+                                      "-Matches: ",matches,"<br>",
+                                      "  -Victories: ",victories_match,"<br>",
+                                      "-Games: ",games_played,"<br>",
+                                      "-Points: <b>",points,"</b><br>",
+                                      "-Points per game: ",points_per_game,"<br>",
+                                      "-Payment: ",payment," €<br>",
+                                      "-Soli: ",games_soli,"<br>",
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Soli</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Soli"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
 })
 
-
-# Anzahl der Soli ----
-
-output$chart_anzahl_soli <- renderPlotly({ 
-plot_ly() %>% 
-  add_trace(data= tbl_spielerin_summary(),
-            x = ~spieler_in,
-            y = ~soli,
-            name = "Anzahl der Spieltagssiege",
-            type = 'bar',
-            marker = list(color = "#85b6b2"),
-            text=~soli,
-            textfont=list(color="white"),
-            textposition = 'auto',
-            transforms = list(list(type = 'filter',
-                                   target = ~soli,
-                                   operation = '>',
-                                   value = 0)),
-            hovertemplate = paste0("Spieler:in<b>: ",tbl_spielerin_summary()$spieler_in,"</b><br><br>",
-                                   "-Spieltage: ",tbl_spielerin_summary()$spieltage,"<br>",
-                                   "-Spiele: <b> ",tbl_spielerin_summary()$spiele,"</b><br>",
-                                   "-Spieltagssiege: ",tbl_spielerin_summary()$spieltagssiege,"<br>",
-                                   "-Punkte: ",tbl_spielerin_summary()$punkte,"<br>",
-                                   "-Punkte pro Spiel: ",tbl_spielerin_summary()$punkte_pro_spiel,"<br>",
-                                   "-Soli: ",tbl_spielerin_summary()$soli,"<br>",
-                                   "<extra></extra>")) %>% 
-  layout(title = list(text = "<b>Anzahl der Soli nach Spieler:in</b>", 
-                      font= list(size = 24,
-                                 family = "calibri"),
-                      y = 0.98),
-         font = list(family = "calibri",size = 18),
-         separators = ',',
-         yaxis = list(title = "Anzahl der Soli",
-                      ticksuffix = ""),
-         xaxis = list(title = list(text = "", standoff = 3),
-                      categoryorder = "total descending",
-                      zeroline = FALSE),
-         legend = list(orientation = 'h')) 
+#Games played
+output$chart_overview_games_played <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data=tbl_player_summary(),
+              x = ~player,
+              y = ~games_played,
+              type = 'bar',
+              marker = list(color = list_colors_tableau_10$teal),
+              text=~games_played,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Matchdays: ",matchdays,"<br>",
+                                      "  -Victories: ",victories_matchday,"<br>",
+                                      "-Matches: ",matches,"<br>",
+                                      "  -Victories: ",victories_match,"<br>",
+                                      "-Games: ",games_played,"<br>",
+                                      "-Points: <b>",points,"</b><br>",
+                                      "-Points per game: ",points_per_game,"<br>",
+                                      "-Payment: ",payment," €<br>",
+                                      "-Soli: ",games_soli,"<br>",
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Games played</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Games"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
 })
 
-# Einzahlung nach Spieler:in ----
-
-output$chart_einhalungen <- renderPlotly({ 
-plot_ly() %>% 
-  add_trace(data= tbl_spielerin_summary(),
-            x = ~spieler_in,
-            y = ~einzahlung,
-            name = "Minuspunkte/Einzahlungen (Soll))",
-            type = 'bar',
-            marker = list(color = "#5778a4"),
-            text= ~paste0(einzahlung," &#8364;"),
-            textfont=list(color="white"),
-            textposition = 'auto',
-            transforms = list(list(type = 'filter',
-                                   target = ~soli,
-                                   operation = '>',
-                                   value = 0)),
-            hovertemplate = paste0("Spieler:in<b>: ",tbl_spielerin_summary()$spieler_in,"</b><br><br>",
-                                   "-Einzahlung: <b>",tbl_spielerin_summary()$einzahlung," &#8364; </b><br>",
-                                   "-Spieltage: ",tbl_spielerin_summary()$spieltage,"<br>",
-                                   "-Spiele: ",tbl_spielerin_summary()$spiele,"<br>",
-                                   "-Punkte: ",tbl_spielerin_summary()$punkte,"<br>",
-                                   "-Soli: ",tbl_spielerin_summary()$soli,"<br>",
-                                   "<extra></extra>")) %>% 
-  layout(title = list(text = "<b>Einzahlung nach Spieler:in</b>", 
-                      font= list(size = 24,
-                                 family = "calibri"),
-                      y = 0.98),
-         font = list(family = "calibri",size = 18),
-         separators = ',',
-         yaxis = list(title = "Einzahlung in &#8364;",
-                      ticksuffix = " &#8364;"),
-         xaxis = list(title = list(text = "", standoff = 3),
-                      categoryorder = "total descending",
-                      zeroline = FALSE
-         ),
-         legend = list(orientation = 'h'),
-         annotations=list(text=paste0("<b>Gesamt: ",tbl_spielerin_summary()$einzahlung %>% sum()," &#8364;</b>"),
-                          "showarrow"=F,
-                          align = "left",
-                          yref = "paper",
-                          xref = "paper",
-                          x= 0.9,
-                          y= 0.9,
-                          font = list(size = 22)))
+#Victories Matches
+output$chart_overview_victories_match <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data=tbl_player_summary() %>%
+                filter(victories_match>0),
+              x = ~player,
+              y = ~victories_match,
+              type = 'bar',
+              marker = list(color = list_colors_tableau_10$teal),
+              text=~victories_match,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Matchdays: ",matchdays,"<br>",
+                                      "  -Victories: ",victories_matchday,"<br>",
+                                      "-Matches: ",matches,"<br>",
+                                      "  -Victories: ",victories_match,"<br>",
+                                      "-Games: ",games_played,"<br>",
+                                      "-Points: <b>",points,"</b><br>",
+                                      "-Points per game: ",points_per_game,"<br>",
+                                      "-Payment: ",payment," €<br>",
+                                      "-Soli: ",games_soli,"<br>",
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Victories: Match</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Victories"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
 })
 
+#Victories Matchdays
+output$chart_overview_victories_matchday <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data=tbl_player_summary() %>%
+                filter(victories_matchday>0),
+              x = ~player,
+              y = ~victories_matchday,
+              type = 'bar',
+              marker = list(color = list_colors_tableau_10$teal),
+              text=~victories_matchday,
+              textfont = list(color = "#FFFFFF"),
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Matchdays: ",matchdays,"<br>",
+                                      "  -Victories: ",victories_matchday,"<br>",
+                                      "-Matches: ",matches,"<br>",
+                                      "  -Victories: ",victories_match,"<br>",
+                                      "-Games: ",games_played,"<br>",
+                                      "-Points: <b>",points,"</b><br>",
+                                      "-Points per game: ",points_per_game,"<br>",
+                                      "-Payment: ",payment," €<br>",
+                                      "-Soli: ",games_soli,"<br>",
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Victories: Matchday</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Victories"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
+})
 
-
-
+output$chart_overview_position <- renderPlotly({
+  plot_ly(hoverlabel = list(align = "left")) %>%
+    add_trace(data = tbl_matchday_summary_by_player(),
+              x = ~date,
+              y = ~position_reverse,
+              color = ~player,
+              type = 'scatter',
+              mode = 'lines',
+              hovertemplate = ~paste0("Player<b>: ",player,"</b><br><br>",
+                                      "-Date: ",date,"<br>",
+                                      "-Position: <b>",position,"</b><br>",
+                                      "-Points:",
+                                      "<br>  -Today: ",points,
+                                      "<br>  -Total: ",points_total,
+                                      "<extra></extra>")
+    ) %>%
+    layout(title = list(text = "<b>Position</b>",
+                        font= list(size = list_plotly_default$font_title_size),
+                        y = list_plotly_default$font_title_y_position),
+           font = list(family = list_plotly_default$font_family,
+                       size = list_plotly_default$font_body_size),
+           font = list(family = list_plotly_default$font_family),
+           yaxis = list(title = "Position"),
+           xaxis = list(title = "",
+                        categoryorder = "total descending"),
+           legend = list(orientation = 'h'))
+})
+# 
+# 
+# # Value box row 
+# 
+# 
+# 
+# # Value boxes ------------------------------------------------------------------
+# 
+# tbl_key_values$matchdays
+# 
+# # Value box row Overview
+# output$value_box_row_01 <- renderUI({
+#   
+#   # Matchdays
+#   box_01 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Matchdays"),
+#       value = tbl_key_values$matchdays,
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Payment
+#   box_02 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Payment"),
+#       value = paste0(tbl_key_values$payment," €"),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Last matchday
+#   box_03 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Last matchday"),
+#       value = format(tbl_key_values$last_match_date,"%d.%m.%y"),
+#       p(paste0("Player: ",tbl_key_values$last_match_player)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Most Points 
+#   box_04 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Most Points"),
+#       value = tbl_key_values$most_points_player,
+#       p(paste0("Points: ",tbl_key_values$most_points_value)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   layout_column_wrap(width = 1/4,
+#                      heights_equal = "row",
+#                      fill = FALSE,
+#                      box_01,
+#                      box_02,
+#                      box_03,
+#                      box_04)
+# })
+# 
+# 
+# # Value box row 02 ------------------
+# # matches
+# # games
+# # bockrunden
+# # most_games_played
+# 
+# tbl_key_values %>% glimpse()
+# 
+# 
+# output$value_box_row_02 <- renderUI({
+#   
+#   # Matches
+#   box_01 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Matches"),
+#       value = tbl_key_values$macthes_n,
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Games
+#   box_02 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Games"),
+#       value = tbl_key_values$games_n,
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Bockrunden
+#   box_03 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Bock Games"),
+#       value = tbl_key_values$games_bock,
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Most Games Played
+#   box_04 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Most games played"),
+#       value = tbl_key_values$most_games_played_player,
+#       p(paste0("Games: ",tbl_key_values$most_games_played_value)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   layout_column_wrap(width = 1/4,
+#                      heights_equal = "row",
+#                      fill = FALSE,
+#                      box_01,
+#                      box_02,
+#                      box_03,
+#                      box_04)
+# })
+# 
+# 
+# 
+# # Value box row 03 ------------------
+# # victories_match
+# # victories_matchday
+# # most_soli
+# # poitns per game 
+# 
+# tbl_key_values %>% glimpse()
+# 
+# 
+# output$value_box_row_03 <- renderUI({
+#   
+#   # Victories Matches
+#   box_01 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Most Victories: Matches"),
+#       value = tbl_key_values$most_victories_match_player,
+#       p(paste0("Victories: ",tbl_key_values$most_victories_match_value)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Victories Matches
+#   box_02 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Most Victories: Matchdays"),
+#       value = tbl_key_values$most_victories_matchday_player,
+#       p(paste0("Victories: ",tbl_key_values$most_victories_matchday_value)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Points per Game 
+#   box_03 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Points per game"),
+#       value = tbl_key_values$highest_points_per_game_player,
+#       p(paste0("Points: ",tbl_key_values$highest_points_per_game_value)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # Soli
+#   box_04 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Most Soli"),
+#       value = tbl_key_values$most_soli_player,
+#       p(paste0("Soli: ",tbl_key_values$most_soli_value)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   layout_column_wrap(width = 1/4,
+#                      heights_equal = "row",
+#                      fill = FALSE,
+#                      box_01,
+#                      box_02,
+#                      box_03,
+#                      box_04)
+# })
+# 
+# # Value box row 04 ------------------
+# 
+# # players 
+# # newest player 
+# # biggest_match
+# 
+# tbl_key_values %>% glimpse()
+# 
+# 
+# output$value_box_row_03 <- renderUI({
+#   
+#   # players
+#   box_01 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Players"),
+#       value = tbl_key_values$player_n,
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # newest player
+#   box_02 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("newest player"),
+#       value = tbl_key_values$newest_player_name,
+#       p(paste0("First Matchday: ",tbl_key_values$newest_player_date)),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   # biggest match  
+#   box_03 <-
+#     value_box(
+#       fill = TRUE,
+#       title = toupper("Biggest Match"),
+#       value = tbl_key_values$biggest_match,
+#       p(paste0("Number of Players")),
+#       showcase = bs_icon("lightning-charge-fill"),
+#       theme = "primary")
+#   
+#   layout_column_wrap(width = 1/4,
+#                      heights_equal = "row",
+#                      fill = FALSE,
+#                      box_01,
+#                      box_02,
+#                      box_03)
+# })

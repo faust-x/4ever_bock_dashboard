@@ -29,16 +29,15 @@ pacman::p_load(tidyverse,
                googlesheets4,
                openxlsx,
                plotly,
-               DT,
                reactablefmtr)
-
 
 # Define input data ----
 
 # URL's from Google Drive and Google Sheet 
 input_data <-
-  list(google_url_folder_images = "https://drive.google.com/drive/folders/1a7Rn8z1eSw-xZPczU5vioYJh0eftK5dj?usp=sharing",
-       google_url_sheet_data = "https://docs.google.com/spreadsheets/d/1rZDkXF7CPSkXcMSGHUp-KRwgnoBsgN-xqQqRO-GyGs8/edit?usp=sharing")
+  list(google_url_folder_images = "https://drive.google.com/drive/folders/1a7Rn8z1eSw-xZPczU5vioYJh0eftK5dj",
+       google_id_folder_images = "1a7Rn8z1eSw-xZPczU5vioYJh0eftK5dj",
+       google_url_sheet_data = "https://docs.google.com/spreadsheets/d/1rZDkXF7CPSkXcMSGHUp-KRwgnoBsgN-xqQqRO-GyGs8")
 
 # Load config files ----
 
@@ -54,16 +53,16 @@ source(file="./global/custom_functions.R", local = TRUE)
 value_name_service_account_token <- list.files(path = "./.secrets",
                                          pattern = "\\.json$")[1]
 
-# Authentication 
+# Authentication
 drive_auth(path = paste0("./.secrets/",
                          value_name_service_account_token))
 gs4_auth(token = drive_token())
-
-# Load data ---- 
+ 
+# Load data ----
 script_load_data <- parse(file = "./global/load_data.R")
 
 for (i in seq_along(script_load_data)) {
-  tryCatch(eval(script_load_data[[i]]), 
+  tryCatch(eval(script_load_data[[i]]),
            error = function(e) message("Oops! Error in chunk: ",
                                        script_load_data[[i]],
                                        "; error message: ",
@@ -73,57 +72,67 @@ for (i in seq_along(script_load_data)) {
 # APP --------------------------------------------------------------------------
 
 # Load ui ----
-# source("./ui/ui_page_overview.R", local = TRUE)
+ source("./ui/ui_page_overview.R", local = TRUE)
 # source("./ui/ui_page_spieltage.R", local = TRUE)
 # source("./ui/ui_page_medallien.R", local = TRUE)
 
-# Create ui object 
-ui <- dashboardPage(#freshTheme = theme,
-                    dark = NULL,
-                    header = dashboardHeader(title = dashboardBrand(title = "4ever Bock",
-                                                                    href = "https://github.com/faust-x",
-                                                                    image = "logo_lucky_strike_48_48.jpg")),
-  sidebar = dashboardSidebar(sidebarMenu(id = "tabs",
-                                         selectInput(inputId = "input_season",
-                                                     label = "Select season",
-                                                     choices = tbl_all_data$season %>% unique(),
-                                                     selected = tbl_all_data$season %>% max(),
-                                                     multiple = TRUE),
-                                         menuItem("Übersicht",
-                                                  tabName = "page_overview",
-                                                  icon = icon("chart-pie", 
-                                                              lib = "font-awesome")),
-                                         menuItem("Spieltage",
-                                                  tabName = "page_spieltage",
-                                                  icon = icon("calendar-day", 
-                                                              lib = "font-awesome")),
-                                         menuItem("Medaillen",
-                                                  tabName = "page_medallien",
-                                                  icon = icon("medal", 
-                                                              lib = "font-awesome")),
-                                         menuItem("Regeln",
-                                                  tabName = "page_regeln",
-                                                  icon = icon("gavel", 
-                                                              lib = "font-awesome")))
-                             ),
-  dashboardBody(tabItems(tabItem_page_overview,
-                         tab_Item_page_spieltage,
-                         tabItem_page_medallien,
-                         tabItem("page_regeln",
-                                 tags$iframe(style="height:600px; width:100%",
-                                             src="Regeln.pdf"))
-                                 )))
 
+# Create ui object 
+ui <- page_navbar(theme = bslib_theme_default,
+                  sidebar = sidebar(textOutput("vec_avalible_users"),
+                                    selectInput("season",
+                                                label = p("Select season",style = 'color: black;'),
+                                                choices = options_season,
+                                                multiple = T,
+                                                selected = max(options_season))),
+                  title = "4ever Bock Dashboard",
+                  nav_panel("Overview",
+                            icon =  fa("users-viewfinder"),
+                            page_ui_overview
+                            ),
+                  nav_panel("Player",
+                            icon = bs_icon("person-bounding-box")#,
+                            #page_hcps_and_prescriptions
+                  ),
+                  nav_panel("Matches",
+                            icon = fa("dice")#,
+                            #page_hcps_and_prescriptions
+                  ),
+                  nav_panel("Rules",
+                            icon = fa("section")#,
+                            #page_hcps_and_prescriptions
+                  ),
+                  nav_panel("Hall Of Fame",
+                            icon = fa("place-of-worship")#,
+                            #page_hcps_and_prescriptions
+                  ),
+                  nav_spacer(),
+                  nav_item(tags$a(tags$span(fa("google-drive"),
+                                            "Data"),
+                                  href = input_data$google_url_sheet_data)
+                           ),
+                  nav_item(tags$a(tags$span(fa("images"),
+                                            "Pictures"),
+                                  href = input_data$google_url_folder_images)
+                  ),
+                    nav_item(tags$a(tags$span(bs_icon("github"),
+                                              "Source Code"),
+                                    href = "https://github.com/",
+                                    target = "_blank"))
+                  )
+                  
 
 # Load server ----
-server <- function(input, output) {
+server <- function(session,input, output) {
   
-  # source("./server/server_data.R", local = TRUE)
-  # source("./server/server_page_overview.R", local = TRUE)
+  source("./server/server_data.R", local = TRUE)
+  
+  # Pages
+  source("./server/server_page_overview.R", local = TRUE)
   # source("./server/server_page_spieltage.R", local = TRUE)
   # source("./server/server_page_medallien.R", local = TRUE)
-  # 
+  
 }
 
-# Start APP ----
+# Start App -------------------------------------------------------------------
 shinyApp(ui, server)
