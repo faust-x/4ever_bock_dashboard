@@ -5,6 +5,7 @@
 .RData
 .Rhistory
 .Rprofile
+rsconnect/
 
 # R project
 4ever_bock_bslib.Rproj
