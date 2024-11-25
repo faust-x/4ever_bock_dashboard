@@ -58,7 +58,7 @@ drive_auth(path = paste0("./.secrets/",
                          value_name_service_account_token))
 gs4_auth(token = drive_token())
  
-# Load data ----
+# Load data -----
 script_load_data <- parse(file = "./global/load_data.R")
 
 for (i in seq_along(script_load_data)) {
@@ -114,33 +114,33 @@ ui <- page_navbar(theme = bslib_theme_default,
                             icon = fa("place-of-worship"),
                             page_fluid(
                               navset_card_tab(full_screen = TRUE,
-                                                       title = "Hall of Fame",
-                                                       height = 800,
-                                                       nav_panel(title = "2023",
-                                                                 tags$iframe(
-                                                                   src = "season_2023_4ever_bock.pdf",
-                                                                   width = "100%",
-                                                                   height = "700px",
-                                                                   style = "border: none;",
-                                                                   allow = "fullscreen; autoplay")
-                                                                 )
+                                              title = "Hall of Fame",
+                                              height = 800,
+                                              nav_panel(title = "2023",
+                                                        tags$iframe(
+                                                          src = "season_2023_4ever_bock.pdf",
+                                                          width = "100%",
+                                                          height = "700px",
+                                                          style = "border: none;",
+                                                          allow = "fullscreen; autoplay")
                                               )
                               )
+                            )
                   ),
                   nav_spacer(),
                   nav_item(tags$a(tags$span(fa("google-drive"),
                                             "Data"),
                                   href = input_data$google_url_sheet_data)
-                           ),
+                  ),
                   nav_item(tags$a(tags$span(fa("images"),
                                             "Pictures"),
                                   href = input_data$google_url_folder_images)
                   ),
-                    nav_item(tags$a(tags$span(bs_icon("github"),
-                                              "Source Code"),
-                                    href = "https://github.com/faust-x/4ever_bock_dashboard",
-                                    target = "_blank"))
-                  )
+                  nav_item(tags$a(tags$span(bs_icon("github"),
+                                            "Source Code"),
+                                  href = "https://github.com/faust-x/4ever_bock_dashboard",
+                                  target = "_blank"))
+)
                   
 
 # Load server ----

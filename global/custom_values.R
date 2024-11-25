@@ -1,6 +1,6 @@
 # bslib themes ----------------------------------------------------------------
 
-# bslib theme mementor default ----
+# bslib theme default ----
 bslib_theme_default <-
   bs_theme(
     version = 5,

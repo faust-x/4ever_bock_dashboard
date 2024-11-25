@@ -27,9 +27,5 @@ page_ui_matches <-
                              height = 400,
                              nav_panel(title = "Image",
                                        imageOutput("image_match"))
-                                       #uiOutput(outputId = "image_match"))
              )
              ) 
-
-
-               

@@ -7,7 +7,7 @@
 
 # Charts -----------------------------------------------------------------------
 
-#Points
+# Points ----
 output$chart_overview_points <- renderPlotly({
   
   plot_ly(hoverlabel = list(align = "left")) %>%
@@ -44,7 +44,7 @@ output$chart_overview_points <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
-#Points per Game
+# Points per game ----
 output$chart_overview_points_per_game <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data=tbl_player_summary(),
@@ -80,7 +80,7 @@ output$chart_overview_points_per_game <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
-# Payment
+# Payment ----
 output$chart_overview_payment <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data=tbl_player_summary() %>%
@@ -115,7 +115,7 @@ output$chart_overview_payment <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
-#Soli
+# Soli ----
 output$chart_overview_soli <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data=tbl_player_summary() %>%
@@ -150,7 +150,7 @@ output$chart_overview_soli <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
-#Games played
+# Games played ----
 output$chart_overview_games_played <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data=tbl_player_summary(),
@@ -184,7 +184,7 @@ output$chart_overview_games_played <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
-#Victories Matches
+# Victories: Matches ----
 output$chart_overview_victories_match <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data=tbl_player_summary() %>%
@@ -207,7 +207,7 @@ output$chart_overview_victories_match <- renderPlotly({
                                       "-Soli: ",games_soli,"<br>",
                                       "<extra></extra>")
     ) %>%
-    layout(title = list(text = "<b>Victories: Match</b>",
+    layout(title = list(text = "<b>Victories: Matches</b>",
                         font= list(size = list_plotly_default$font_title_size),
                         y = list_plotly_default$font_title_y_position),
            font = list(family = list_plotly_default$font_family,
@@ -219,7 +219,7 @@ output$chart_overview_victories_match <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
-#Victories Matchdays
+# Victories: Matchdays ----
 output$chart_overview_victories_matchday <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data=tbl_player_summary() %>%
@@ -242,7 +242,7 @@ output$chart_overview_victories_matchday <- renderPlotly({
                                       "-Soli: ",games_soli,"<br>",
                                       "<extra></extra>")
     ) %>%
-    layout(title = list(text = "<b>Victories: Matchday</b>",
+    layout(title = list(text = "<b>Victories: Matchdays</b>",
                         font= list(size = list_plotly_default$font_title_size),
                         y = list_plotly_default$font_title_y_position),
            font = list(family = list_plotly_default$font_family,
@@ -254,6 +254,7 @@ output$chart_overview_victories_matchday <- renderPlotly({
            legend = list(orientation = 'h'))
 })
 
+# Position ----
 output$chart_overview_position <- renderPlotly({
   plot_ly(hoverlabel = list(align = "left")) %>%
     add_trace(data = tbl_matchday_summary_by_player(),

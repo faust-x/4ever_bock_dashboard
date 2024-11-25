@@ -1,4 +1,3 @@
-
 # UI ---------------------------------------------------------------------------
 page_ui_overview <- 
   page_fluid(uiOutput("value_box_row_overview_01"),
@@ -15,9 +14,9 @@ page_ui_overview <-
                                        plotlyOutput("chart_overview_soli")),
                              nav_panel(title = "Games",
                                        plotlyOutput("chart_overview_games_played")),
-                             nav_panel(title = "Victories: Match",
+                             nav_panel(title = "Victories: Matches",
                                        plotlyOutput("chart_overview_victories_match")),
-                             nav_panel(title = "Victories: Matchday",
+                             nav_panel(title = "Victories: Matchdays",
                                        plotlyOutput("chart_overview_victories_matchday")),
                              nav_panel(title = "Position",
                                        plotlyOutput("chart_overview_position"))

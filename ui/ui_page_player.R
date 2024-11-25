@@ -16,4 +16,3 @@ page_ui_player <-
                                        plotlyOutput("chart_player_position"))
                              )
              ) 
-               

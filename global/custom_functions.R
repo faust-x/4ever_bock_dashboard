@@ -1,7 +1,5 @@
 # DTtable ----------------------------------------------------------------------
 
-# DTtable buttons ----
-
 # DTtable standard
 datatable_std <- function(TABLE,
                           fillContainer =TRUE,
@@ -46,11 +44,10 @@ datatable_std <- function(TABLE,
 # Fontawesome ------------------------------------------------------------------
 
 fa_value_box <- function(ICON = "calendar-check") {
-
-fa(name = ICON,
-   height = "4em",
-   width = "4em")
-}
+  fa(name = ICON,
+     height = "4em",
+     width = "4em")
+  }
 
 # Reacttable (+fmtr) -----------------------------------------------------------
 
@@ -61,57 +58,4 @@ reactable_std <- function(TABLE = cars) {
             searchable = TRUE,
             compact = TRUE) %>% 
     google_font("Montserrat")
-}
-
-# Plotly -----------------------------------------------------------------------
-
-# Function for custom layout for charts in value boxes of bslib
-function_plotly_layout_value_box <- function(PLOTLY_CHART,
-                                             yaxis_visible = TRUE
-) {
-  PLOTLY_CHART %>% 
-    layout(title = list(text = ""),
-           separators = '.',
-           xaxis = list(title = list(text = ""),
-                        visible = FALSE, 
-                        showgrid = FALSE,
-                        zeroline = FALSE),
-           yaxis = list(title = "",
-                        visible = yaxis_visible,
-                        showgrid = FALSE,
-                        zeroline = TRUE),
-           margin = list(t = 0, r = 0, l = 0, b = 0),
-           font = list(color = "white"),
-           paper_bgcolor = "transparent",
-           plot_bgcolor = "transparent") %>% 
-    config(displayModeBar = F) %>%
-    htmlwidgets::onRender(
-      "function(el) {
-      var ro = new ResizeObserver(function() {
-         var visible = el.offsetHeight > 200;
-         Plotly.relayout(el, {'xaxis.visible': visible});
-      });
-      ro.observe(el);
-    }"
-    )
-}
-
-
-# Creates a screenshot in high resolution 
-plotly_screenshot_std <-
-  function(plotly_chart,
-           name_of_chart = "chart"){
-    plotly_chart %>% 
-      plotly::config(
-        toImageButtonOptions = list(
-          format = "png",
-          scale = 4,
-          filename = paste0(str_replace_all(Sys.Date(),
-                                            "-",
-                                            "_"),
-                            "_",
-                            name_of_chart),
-          width = 1200,
-          height = 800
-        ))
   }

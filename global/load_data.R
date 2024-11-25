@@ -1,13 +1,8 @@
 # Google Drive -----------------------------------------------------------------
 
+# Match data ----
 
-# input <-
-#   list(season = 2024,
-#        player = "Felix",
-#        player_analysis_y_axis = "points_total")
-# 
-
-# Load 
+# Load
 google_sheet_data <-
 read_sheet(input_data$google_url_sheet_data)
 
@@ -43,16 +38,10 @@ google_sheet_data %>%
   mutate(season = year(date)) %>% 
   arrange(desc(date))
 
-# Backup 
-# write_csv(tbl_raw_data_clean,
-#           "tbl_raw_data_clean.csv")
-# 
-# tbl_raw_data_clean_test <- 
-# read_csv("tbl_raw_data_clean.csv")
+# Images ----
 
 tbl_pictures_in_folder <-
   drive_ls(path= as_id(input_data$google_id_folder_images),
-           #shared_drive = as_id(input$id_shared_drive),
            recursive = TRUE) %>% 
   unnest_wider(drive_resource,
                names_repair = "unique") %>%
@@ -69,19 +58,7 @@ tbl_pictures_in_folder <-
   filter(str_detect(mimeType,"image")) %>% 
   mutate(url = paste0("https://drive.usercontent.google.com/download?id=",googledrive_id))
 
-# 
-# https://drive.usercontent.google.com/download?id=1T5NPvu9zQtUiB_NZlVfrrLykJrakcgEw&export=view&authuser=0
-
-tbl_pictures_in_folder$url
-#Backup
-# write_csv(tbl_pictures_in_folder,
-#           "tbl_pictures_in_folder.csv")
-# 
-# tbl_pictures_in_folder <-
-#   read_csv("tbl_pictures_in_folder.csv") %>% 
-#   mutate(url = paste0("https://drive.google.com/uc?export=view&id=",googledrive_id))
-
-# Options ----
+# Global options ---------------------------------------------------------------
 
 options_season <-
   tbl_raw_data_clean %>% 

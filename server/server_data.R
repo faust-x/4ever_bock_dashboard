@@ -1,10 +1,12 @@
-# Data Preparation ----
+# Calculation of global data after season filter -------------------------------
 
+# Global filter for season
 tbl_raw_data_selected <- reactive({
   tbl_raw_data_clean %>% 
     filter(season %in% input$season)
 })
 
+# Summarize raw data due to possible input errors
 tbl_matches <- reactive({
   tbl_raw_data_selected() %>% 
     group_by(date,player,match) %>% 
@@ -23,6 +25,7 @@ tbl_matches <- reactive({
     ungroup()
 })
 
+# Summary per match 
 tbl_matches_summary <- reactive({
   tbl_matches() %>% 
     group_by(date,match) %>% 
@@ -35,7 +38,7 @@ tbl_matches_summary <- reactive({
     ungroup()
 })
 
-
+# Raw data per matchday and player 
 tbl_matchdays_raw_data <- reactive({
   tbl_matches() %>% 
     group_by(date,player) %>% 
@@ -55,7 +58,7 @@ tbl_matchdays_raw_data <- reactive({
     ungroup()
 })
 
-
+# Summary per player
 tbl_player_summary <- reactive({
   tbl_matches() %>%  
     group_by(player) %>%
@@ -83,7 +86,7 @@ tbl_player_summary <- reactive({
     ungroup()
 })
 
-
+# Summary per matchday and player 
 tbl_matchday_summary_by_player <- reactive({
   tbl_matches() %>% 
     group_by(date,
@@ -108,16 +111,7 @@ tbl_matchday_summary_by_player <- reactive({
     mutate(position_reverse = max(position)+ 1 -position)
 })
 
-
-
-# tbl_raw_data_selected %>% glimpse()
-# tbl_matchdays_raw_data %>% glimpse()
-# tbl_matches_raw_data %>% glimpse()
-# tbl_player_summary %>% glimpse()
-# tbl_pictures_in_folder %>% glimpse()
-
-# value box data
-
+# Summary of key values in one table 
 tbl_key_values <- reactive({
   tbl_matches_summary() %>% 
     summarise(macthes_n = n(),
@@ -151,70 +145,49 @@ tbl_key_values <- reactive({
                           last_match_date = max(date_last)))
 })
 
+# Render raw data tables with reacttable ---------------------------------------
 
-
-# Reacttable 
-
-# matches all
+# Match raw data
 output$reacttable_overview_match_all <- renderReactable({
-  
   tbl_raw_data_clean %>% 
     reactable_std()
-  
 })
 
-# match selection
+# Match selection
 output$reacttable_overview_match_selection <- renderReactable({
-  
   tbl_matches() %>% 
     reactable_std()
-  
 })
 
-# matchday selection
+# Matchday selection
 output$reacttable_overview_matchday_selection <- renderReactable({
-  
   tbl_matchdays_raw_data() %>% 
     reactable_std()
-  
 })
 
-# match summary
+# Match summary
 output$reacttable_overview_match_summary <- renderReactable({
-  
   tbl_matches_summary() %>% 
     reactable_std()
-  
 })
 
-# player summary
+# Player summary
 output$reacttable_overview_player_summary <- renderReactable({
-  
   tbl_player_summary() %>% 
     reactable_std()
-  
 })
 
-# tbl_key_values
+# Key values
 output$reacttable_overview_key_values <- renderReactable({
-  
   tbl_key_values() %>% 
     pivot_longer(data = .,
                  cols = everything(),
                  values_transform = as.character) %>% 
     reactable_std()
-  
 })
 
-# tbl_key_values
+# Images
 output$reacttable_pictures_all <- renderReactable({
-  
   tbl_pictures_in_folder %>%  
     reactable_std()
-  
 })
-
-
-
-
-

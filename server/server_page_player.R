@@ -3,6 +3,9 @@
 # Data 
 # tbl_player_summary()
 
+# Inputs
+# input$player
+
 # Inputs -----------------------------------------------------------------------
 
 observeEvent(
@@ -17,7 +20,6 @@ observeEvent(
                       distinct(player) %>% 
                       pull())
   )
-
 
 # Detailed player analysis -----------------------------------------------------
 
