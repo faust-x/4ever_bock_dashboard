@@ -276,7 +276,8 @@ output$chart_overview_position <- renderPlotly({
            font = list(family = list_plotly_default$font_family,
                        size = list_plotly_default$font_body_size),
            font = list(family = list_plotly_default$font_family),
-           yaxis = list(title = "Position"),
+           yaxis = list(title = "Position",
+                        visible = FALSE),
            xaxis = list(title = "",
                         categoryorder = "total descending"),
            legend = list(orientation = 'h'))
