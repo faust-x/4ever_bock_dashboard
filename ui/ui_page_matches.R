@@ -1,0 +1,31 @@
+# UI ---------------------------------------------------------------------------
+page_ui_matches <- 
+  page_fluid(navset_card_tab(full_screen = TRUE,
+                             title = "Matches",
+                             sidebar = sidebar(selectInput("matchday",
+                                                           label = "Select matchday",
+                                                           choices = options_season,
+                                                           multiple = F,
+                                                           selected = max(options_season)),
+                                               selectInput("match",
+                                                           label = "Select Match",
+                                                           choices = options_season,
+                                                           multiple = F,
+                                                           selected = max(options_season))),
+                             height = 400,
+                             nav_panel(title = "Match",
+                                       reactableOutput("reactable_match_selection"))
+                             ),
+             navset_card_tab(full_screen = TRUE,
+                             title = "Images",
+                             sidebar = sidebar(selectInput("image_google_id",
+                                                           label = "Select image",
+                                                           choices = setNames(tbl_pictures_in_folder$googledrive_id,
+                                                                              tbl_pictures_in_folder$name),
+                                                           multiple = F,
+                                                           selected = tbl_pictures_in_folder$googledrive_id[1])),
+                             height = 400,
+                             nav_panel(title = "Image",
+                                       imageOutput("image_match"))
+             )
+             ) 

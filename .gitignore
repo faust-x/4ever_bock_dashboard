@@ -1,6 +1,12 @@
 ### AL ###
 # sercrets
 .secrets/
+.Rproj.user/
+.RData
+.Rhistory
+.Rprofile
+rsconnect/
+
 # R project
 4ever_bock_bslib.Rproj
 #Template for AL projects for Dynamics 365 Business Central
