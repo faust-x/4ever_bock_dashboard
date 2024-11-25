@@ -43,6 +43,14 @@ datatable_std <- function(TABLE,
   
 }
 
+# Fontawesome ------------------------------------------------------------------
+
+fa_value_box <- function(ICON = "calendar-check") {
+
+fa(name = ICON,
+   height = "4em",
+   width = "4em")
+}
 
 # Reacttable (+fmtr) -----------------------------------------------------------
 

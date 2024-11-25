@@ -4,7 +4,7 @@ page_ui_overview <-
   page_fluid(uiOutput("value_box_row_overview_01"),
              navset_card_tab(full_screen = TRUE,
                              title = "Charts",
-                             height = 900,
+                             height = 700,
                              nav_panel(title = "Points",
                                        plotlyOutput("chart_overview_points")),
                              nav_panel(title = "Points per game",

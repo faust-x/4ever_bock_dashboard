@@ -73,38 +73,59 @@ for (i in seq_along(script_load_data)) {
 
 # Load ui ----
  source("./ui/ui_page_overview.R", local = TRUE)
-# source("./ui/ui_page_spieltage.R", local = TRUE)
-# source("./ui/ui_page_medallien.R", local = TRUE)
-
+ source("./ui/ui_page_player.R", local = TRUE)
+ source("./ui/ui_page_matches.R", local = TRUE)
 
 # Create ui object 
 ui <- page_navbar(theme = bslib_theme_default,
-                  sidebar = sidebar(textOutput("vec_avalible_users"),
+                  sidebar = sidebar(open = "closed",
                                     selectInput("season",
-                                                label = p("Select season",style = 'color: black;'),
+                                                label = "Select season",
                                                 choices = options_season,
                                                 multiple = T,
                                                 selected = max(options_season))),
-                  title = "4ever Bock Dashboard",
+                  tags$head(
+                    tags$link(rel = "stylesheet",
+                              type = "text/css",
+                              href = "styles.css")),
+                  title = tags$div(class = "navbar-brand",
+                                   tags$img(src = "logo.png",
+                                            height = "48px",
+                                            style = "margin-right: 10px;"),
+                                   "4ever Bock Dashboard"),
                   nav_panel("Overview",
                             icon =  fa("users-viewfinder"),
-                            page_ui_overview
-                            ),
+                            page_ui_overview),
                   nav_panel("Player",
-                            icon = bs_icon("person-bounding-box")#,
-                            #page_hcps_and_prescriptions
-                  ),
+                            icon = bs_icon("person-bounding-box"),
+                            page_ui_player),
                   nav_panel("Matches",
-                            icon = fa("dice")#,
-                            #page_hcps_and_prescriptions
-                  ),
+                            icon = fa("dice"),
+                            page_ui_matches),
                   nav_panel("Rules",
-                            icon = fa("section")#,
-                            #page_hcps_and_prescriptions
-                  ),
+                            icon = fa("section"),
+                            page_fluid(card(tags$iframe(
+                              src = "rules.pdf",  
+                              width = "100%",       
+                              height = "1300px",
+                              style = "border: none;",
+                              allow = "fullscreen; autoplay")))),
                   nav_panel("Hall Of Fame",
-                            icon = fa("place-of-worship")#,
-                            #page_hcps_and_prescriptions
+                            icon = fa("place-of-worship"),
+                            page_fluid(
+                              navset_card_tab(full_screen = TRUE,
+                                                       title = "Hall of Fame",
+                                                       height = 800,
+                                                       nav_panel(title = "2023",
+                                                                 tags$iframe(
+                                                                   src = "season_2023_4ever_bock.pdf",
+                                                                   width = "100%",
+                                                                   height = "700px",
+                                                                   style = "border: none;",
+                                                                   allow = "fullscreen; autoplay")
+                                                                 )
+                                              )
+                              )
                   ),
                   nav_spacer(),
                   nav_item(tags$a(tags$span(fa("google-drive"),
@@ -117,7 +138,7 @@ ui <- page_navbar(theme = bslib_theme_default,
                   ),
                     nav_item(tags$a(tags$span(bs_icon("github"),
                                               "Source Code"),
-                                    href = "https://github.com/",
+                                    href = "https://github.com/faust-x/4ever_bock_dashboard",
                                     target = "_blank"))
                   )
                   
@@ -125,12 +146,13 @@ ui <- page_navbar(theme = bslib_theme_default,
 # Load server ----
 server <- function(session,input, output) {
   
+  # Data
   source("./server/server_data.R", local = TRUE)
   
   # Pages
   source("./server/server_page_overview.R", local = TRUE)
-  # source("./server/server_page_spieltage.R", local = TRUE)
-  # source("./server/server_page_medallien.R", local = TRUE)
+  source("./server/server_page_player.R", local = TRUE)
+  source("./server/server_page_matches.R", local = TRUE)
   
 }
 
