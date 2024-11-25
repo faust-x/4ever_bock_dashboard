@@ -69,7 +69,7 @@ tbl_player_summary <- reactive({
               date_last = max(date)) %>%
     mutate(points_per_game = points/games_played) %>% 
     mutate(diff_days_min_max = as.numeric(date_last-date_first)+1) %>% 
-    left_join(tbl_matches() %>%
+    left_join(tbl_matchdays_raw_data() %>% # !!!
                 group_by(player) %>% 
                 summarise(victories_matchday = sum(position == 1)),
               by = join_by(player)) %>% 
