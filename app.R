@@ -21,13 +21,11 @@ rm(list = ls(all.names = TRUE))
 pacman::p_load(tidyverse,
                janitor,
                shiny,
-               shinyWidgets,
                bslib,
                bsicons,
                fontawesome,
                googledrive,
                googlesheets4,
-               openxlsx,
                plotly,
                reactablefmtr)
 
@@ -130,11 +128,13 @@ ui <- page_navbar(theme = bslib_theme_default,
                   nav_spacer(),
                   nav_item(tags$a(tags$span(fa("google-drive"),
                                             "Data"),
-                                  href = input_data$google_url_sheet_data)
+                                  href = input_data$google_url_sheet_data,
+                                  target = "_blank")
                   ),
                   nav_item(tags$a(tags$span(fa("images"),
                                             "Pictures"),
-                                  href = input_data$google_url_folder_images)
+                                  href = input_data$google_url_folder_images,
+                                  target = "_blank")
                   ),
                   nav_item(tags$a(tags$span(bs_icon("github"),
                                             "Source Code"),

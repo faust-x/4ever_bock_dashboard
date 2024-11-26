@@ -3,22 +3,22 @@
   display: flex;           /* Align elements in a flexible row layout */
   align-items: center;     /* Vertically center the content */
   height: 100%;            /* Match the full height of the navbar */
-  font-size: 24px;         /* Font size for the dashboard title */
+  font-size: 16px;         /* Font size for the dashboard title */
 }
 
 /* Styling for the logo inside the title container */
 .navbar-brand img {
-  max-height: 48px;        /* Maximum height for the logo image */
+  max-height: 22px;        /* Maximum height for the logo image */
   margin-right: 10px;      /* Space between the logo and the text */
 }
 
 /* Font size for navigation elements (tabs) */
 .navbar-nav .nav-link {
-  font-size: 18px;         /* Font size for the tabs */
+  font-size: 12px;         /* Font size for the tabs */
 }
 
 /* Styling for the active navigation tab */
 .navbar-nav .nav-link.active {
-  font-size: 18px;         /* Font size for the active tab */
+  font-size: 12px;         /* Font size for the active tab */
   font-weight: bold;       /* Bold text for the active tab */
 }
