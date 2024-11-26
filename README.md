@@ -1,14 +1,14 @@
 # 4Ever-Bock-Dashboard
 The "4Ever-Bock-Dashboard" is an interactive R-Shiny-Dashboard that displays the current standings of the "4ever Bock" Doppelkopf community. Data is updated in real-time via a connected Google Sheet, allowing all members to stay up-to-date with the latest scores and statistics.
 
-[Demo](https://faust-fx.shinyapps.io/4ever_bock_dashboard/)
+- [Demo](https://faust-fx.shinyapps.io/4ever_bock_dashboard/)
 
 # Instalation guide
 
 To create and deploy the dashboard, the following accounts and resources are required:
 
-    Google Drive: For accessing images and data sources.
-    Shinyapps.io: For publishing the dashboard.
+- Google Drive: For accessing images and data sources.
+- Shinyapps.io: For publishing the dashboard.
     
 ## Connecting R to Google Drive and Google Sheets
 
@@ -21,6 +21,6 @@ Once the Service Account is set up, ensure it has access to the following data s
 
 ## Deployment on Shinyapps.io
 
-The dashboard is deployed via RStudio.
+The dashboard is deployed via RStudio. A detailed deployment guide can be found [here](https://shiny.posit.co/r/articles/share/shinyapps/).
 
-- [4ever Bock Dashboard](https://faust-fx.shinyapps.io/4ever_bock_dashboard/)
+- [Demo](https://faust-fx.shinyapps.io/4ever_bock_dashboard/)
