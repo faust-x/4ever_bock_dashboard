@@ -7,7 +7,7 @@ bslib_theme_default <-
     bootswatch = "minty",
     base_font = font_google("Montserrat"),
     code_font = font_google("Montserrat"),
-    font_scale = 0.9,
+    font_scale = 0.6,
     bg = "#FFFFFF",
     fg = "#272c30",
     primary = "#a30041",
