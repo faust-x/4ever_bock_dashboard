@@ -2,6 +2,7 @@
 
 # Data 
 # tbl_player_summary()
+# tbl_matches()
 
 # Inputs -----------------------------------------------------------------------
 
@@ -20,20 +21,6 @@ observeEvent(
                       as.character())
   )
 
-# observeEvent(
-#   input$matchday,
-#   updateSelectInput(session,
-#                     inputId = "match",
-#                     choices = tbl_matches() %>%
-#                       filter(date == input$matchday) %>%
-#                       distinct(match) %>%
-#                       pull(),
-#                     selected = tbl_matches() %>%
-#                       filter(date == input$matchday) %>%
-#                       distinct(match) %>%
-#                       head(1) %>%
-#                       pull())
-# )
 
 observeEvent(
   input$matchday,
@@ -53,8 +40,6 @@ observeEvent(
                       selected = vec_choices[1])
   }
 )
-
-
 
 # Detailed player analysis -----------------------------------------------------
 
@@ -82,37 +67,75 @@ output$reactable_match_selection <- renderReactable({
 
 # Pictures ---------------------------------------------------------------------
 
-# tbl_pictures_in_folder %>% 
-#   filter(name == input$picture) %>% 
-#   pull(url),
-
-#
-# 
-# URL <- "https://spiele-palast.de/app/uploads/sites/6/2021/09/DE_doko_in-game_v3-1110x694.jpg"
-# URL <- "https://drive.usercontent.google.com/download?id=129n_iFW0v5vunDcqEudv7l0KNtveiZ5B"
-# URL <- "https://drive.google.com/uc?id=1-5gsjZHvTMWw9ilhhYw3a5Kgf3CrSJEi"
-# URL <- "https://drive.usercontent.google.com/download?id=1-5gsjZHvTMWw9ilhhYw3a5Kgf3CrSJEi"
-# 
-# output$image_match<-renderUI({
-#   img(src = URL,
-#       width = '100%',
-#       height = '500px')
-# })
-
-
-
 output$image_match <- renderImage({
-  # Lade das Bild temporär herunter
+  # Download image 
   temp_file <- tempfile(fileext = ".jpg")
   
   drive_download(as_id(input$image_google_id),
                  path = temp_file, 
                  overwrite = TRUE)
   
-  # Rückgabe für renderImage
+  # Show image 
   list(src = temp_file,
        contentType = "image/jpeg",
        width = '100%',
        height = '500px')
 }, 
 deleteFile = TRUE)
+
+# Calendar ---------------------------------------------------------------------
+
+# Data ----
+
+tbl_calendar_data <-
+  bind_rows(tbl_pictures_in_folder %>%
+              mutate(date_name = str_sub(name,1,10) %>% 
+                       str_replace_all(.,"_","-") %>% 
+                       as.Date(.)) %>%
+              mutate(date_createdTime = str_sub(createdTime,1,10) %>% 
+                       as.Date(.)) %>%
+              mutate(start = if_else(!is.na(date_name),
+                                     date_name,
+                                     date_createdTime)) %>% 
+              mutate(end = start) %>% 
+              mutate(category = "allday",
+                     title = name,
+                     backgroundColor = list_colors_tableau_10$teal,
+                     color = "white",
+                     borderColor = list_colors_tableau_10$teal),
+            tbl_raw_data_clean %>% 
+              group_by(date) %>% 
+              summarise(payment = sum(payment),
+                        player_n = n_distinct(player),
+                        player_names = toString(unique(player))) %>%
+              ungroup() %>% 
+              arrange(date) %>% 
+              mutate(matchday_num = row_number()) %>% 
+              mutate(title = paste("Matchday",
+                                   matchday_num),
+                     start = date,
+                     end = date,
+                     category = "allday",
+                     backgroundColor = list_colors_tableau_10$blue,
+                     color = "white",
+                     borderColor = list_colors_tableau_10$blue,
+                     body = paste0("Player (",
+                                   player_n,
+                                   "): ",
+                                   player_names,
+                                   "<br> Payment:",
+                                   payment,
+                                   " €"))
+  )
+
+# Chart ----
+
+output$calendar <- renderCalendar({
+  calendar(tbl_calendar_data, 
+           navigation = TRUE,
+           defaultDate = Sys.Date()) %>%
+    cal_month_options(
+      startDayOfWeek  = 1, 
+      narrowWeekend = FALSE) %>% 
+    google_font("Montserrat")
+})

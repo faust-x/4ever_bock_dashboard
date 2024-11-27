@@ -27,7 +27,8 @@ pacman::p_load(tidyverse,
                googledrive,
                googlesheets4,
                plotly,
-               reactablefmtr)
+               reactablefmtr,
+               toastui)
 
 # Define input data ----
 

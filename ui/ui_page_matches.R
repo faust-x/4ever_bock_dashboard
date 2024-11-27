@@ -26,6 +26,10 @@ page_ui_matches <-
                                                            selected = tbl_pictures_in_folder$googledrive_id[1])),
                              height = 400,
                              nav_panel(title = "Image",
-                                       imageOutput("image_match"))
+                                       imageOutput("image_match"))),
+             navset_card_tab(full_screen = TRUE,
+                             title = "Calendar",
+                             height = 750,
+                             nav_panel(title = "Matchdays & Images",
+                                       calendarOutput("calendar")))
              )
-             ) 
