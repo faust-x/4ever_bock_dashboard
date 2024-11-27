@@ -9,7 +9,7 @@ page_ui_player <-
                                                            choices = options_season,
                                                            multiple = F,
                                                            selected = max(options_season))),
-                             height = 700,
+                             height = 600,
                              nav_panel(title = "Points",
                                        plotlyOutput("chart_player_points")),
                              nav_panel(title = "Position",
