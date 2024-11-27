@@ -29,7 +29,7 @@ page_ui_matches <-
                                        imageOutput("image_match"))),
              navset_card_tab(full_screen = TRUE,
                              title = "Calendar",
-                             height = 600,
+                             height = 750,
                              nav_panel(title = "Matchdays & Images",
                                        calendarOutput("calendar")))
              )
