@@ -119,6 +119,14 @@ ui <- page_navbar(theme = bslib_theme_default,
                               navset_card_tab(full_screen = TRUE,
                                               title = "Hall of Fame",
                                               height = 800,
+                                              nav_panel(title = "2024",
+                                                        tags$iframe(
+                                                          src = "season_2024_4ever_bock.pdf",
+                                                          width = "100%",
+                                                          height = "700px",
+                                                          style = "border: none;",
+                                                          allow = "fullscreen; autoplay")
+                                              ),
                                               nav_panel(title = "2023",
                                                         tags$iframe(
                                                           src = "season_2023_4ever_bock.pdf",
